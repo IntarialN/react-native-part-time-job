@@ -33,8 +33,10 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Доступ к геолокации нужен для поиска ближайших смен.</string>
+  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <string>Доступ к геолокации нужен для поиска ближайших смен.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
