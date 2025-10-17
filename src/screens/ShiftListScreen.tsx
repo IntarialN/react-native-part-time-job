@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect} from 'react';
-import {StyleSheet} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {StyleSheet, View, Switch} from 'react-native';
 import {observer} from 'mobx-react-lite';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -14,6 +14,7 @@ export const ShiftListScreen: React.FC = observer(() => {
   const navigation = useNavigation<
     NativeStackNavigationProp<RootStackParamList>
   >();
+  const [scrollToTopToken, setScrollToTopToken] = useState(0);
 
   useEffect(() => {
     if (store.status === 'idle') {
@@ -31,6 +32,18 @@ export const ShiftListScreen: React.FC = observer(() => {
     store.loadShifts();
   }, [store]);
 
+  const handleToggleIncludeFilled = useCallback(
+    (value: boolean) => {
+      store.setIncludeFilled(value);
+      setScrollToTopToken(token => token + 1);
+    },
+    [store],
+  );
+
+  const handleLoadMore = useCallback(() => {
+    store.loadMoreShifts();
+  }, [store]);
+
   const handleSelectShift = useCallback(
     (shiftId: string) => {
       store.selectShift(shiftId);
@@ -41,17 +54,32 @@ export const ShiftListScreen: React.FC = observer(() => {
 
   return (
     <Screen contentStyle={styles.screenContent}>
-      <Text variant="title" style={styles.title}>
-        Доступные смены
-      </Text>
+      <View style={styles.headerRow}>
+        <Text variant="title" style={styles.title}>
+          Доступные смены
+        </Text>
+        <View style={styles.switchRow}>
+          <Text variant="caption" color="textSecondary" style={styles.switchLabel}>
+            Заполненные
+          </Text>
+          <Switch
+            value={store.includeFilled}
+            onValueChange={handleToggleIncludeFilled}
+          />
+        </View>
+      </View>
       <ShiftList
-        shifts={store.shifts.slice()}
+        shifts={store.visibleShifts}
         status={store.status}
         error={store.error}
         refreshing={isRefreshing}
         onRefresh={handleRefresh}
         onRetry={handleRefresh}
         onSelectShift={handleSelectShift}
+        onEndReached={handleLoadMore}
+        loadingMore={store.isLoadingMore}
+        hasMore={store.hasMore}
+        scrollToTopToken={scrollToTopToken}
       />
     </Screen>
   );
@@ -61,7 +89,20 @@ const styles = StyleSheet.create({
   screenContent: {
     paddingTop: theme.spacing.md,
   },
-  title: {
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: theme.spacing.lg,
+  },
+  title: {
+    marginBottom: 0,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  switchLabel: {
+    marginRight: theme.spacing.xs,
   },
 });

@@ -15,15 +15,23 @@ export class ShiftStore {
   location: Coordinates | null = null;
   selectedShiftId: string | null = null;
   lastUpdatedAt: number | null = null;
+  includeFilled: boolean = true;
 
   private abortController: AbortController | null = null;
-
   constructor() {
     makeAutoObservable(this);
   }
 
   get hasShifts(): boolean {
     return this.shifts.length > 0;
+  }
+
+  get visibleShifts(): Shift[] {
+    if (this.includeFilled) {
+      return this.shifts.slice();
+    }
+
+    return this.shifts.filter(shift => shift.currentWorkers < shift.planWorkers);
   }
 
   get selectedShift(): Shift | undefined {
@@ -36,6 +44,15 @@ export class ShiftStore {
 
   selectShift(shiftId: string | null) {
     this.selectedShiftId = shiftId;
+  }
+
+  setIncludeFilled(value: boolean) {
+    if (this.includeFilled === value) {
+      return;
+    }
+
+    this.includeFilled = value;
+    this.loadShifts();
   }
 
   cancelOngoingRequest() {
