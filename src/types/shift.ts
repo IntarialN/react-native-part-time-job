@@ -8,9 +8,26 @@ export type Shift = {
   timeEndByCity: string;
   currentWorkers: number;
   planWorkers: number;
-  workTypes: string[] | string;
+  workTypes:
+    | string
+    | Array<
+        | string
+        | {
+            id: number | string;
+            name: string;
+            nameGt5?: string;
+            nameLt5?: string;
+            nameOne?: string;
+            [key: string]: unknown;
+          }
+      >;
   priceWorker: number;
-  customerFeedbacksCount: number;
+  bonusPriceWorker?: number;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+  customerFeedbacksCount: number | string;
   customerRating: number;
   [key: string]: unknown;
 };

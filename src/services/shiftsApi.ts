@@ -1,7 +1,7 @@
 import type {Coordinates, Shift, ShiftListResponse} from '../types';
 
 const API_BASE_URL = 'https://mobile.handswork.pro/api';
-const SHIFTS_ENDPOINT = `${API_BASE_URL}/shift`;
+const SHIFTS_ENDPOINT = `${API_BASE_URL}/shifts/map-list-unauthorized`;
 
 type FetchShiftsParams = Coordinates & {
   signal?: AbortSignal;
@@ -14,6 +14,13 @@ const parseShiftResponse = (payload: ShiftListResponse): Shift[] => {
 
   if (payload?.data && Array.isArray(payload.data)) {
     return payload.data;
+  }
+
+  if ((payload as {shifts?: Shift[]})?.shifts) {
+    const maybeShifts = (payload as {shifts?: Shift[]}).shifts;
+    if (Array.isArray(maybeShifts)) {
+      return maybeShifts;
+    }
   }
 
   return [];

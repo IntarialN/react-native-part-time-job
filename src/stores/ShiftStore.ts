@@ -81,17 +81,21 @@ export class ShiftStore {
         this.error = null;
         this.lastUpdatedAt = Date.now();
       });
-    } catch (error) {
-      if ((error as Error)?.name === 'AbortError') {
+    } catch (unknownError) {
+      const normalizedError =
+        unknownError instanceof Error
+          ? unknownError
+          : new Error('Произошла неизвестная ошибка при загрузке смен.');
+
+      if (normalizedError.name === 'AbortError') {
         return;
       }
 
+      console.warn('Failed to load shifts', normalizedError);
+
       runInAction(() => {
         this.status = 'error';
-        this.error =
-          error instanceof Error
-            ? error.message
-            : 'Произошла неизвестная ошибка при загрузке смен.';
+        this.error = normalizedError.message;
       });
     } finally {
       this.abortController = null;

@@ -1,12 +1,19 @@
-import React, {useEffect} from 'react';
-import {ActivityIndicator, StyleSheet, View} from 'react-native';
+import React, {useCallback, useEffect} from 'react';
+import {StyleSheet} from 'react-native';
 import {observer} from 'mobx-react-lite';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Screen, Text} from '../components/ui';
+import {ShiftList} from '../components/shifts';
 import {useShiftStore} from '../stores';
 import {theme} from '../theme';
+import type {RootStackParamList} from '../navigation/AppNavigator';
 
 export const ShiftListScreen: React.FC = observer(() => {
   const store = useShiftStore();
+  const navigation = useNavigation<
+    NativeStackNavigationProp<RootStackParamList>
+  >();
 
   useEffect(() => {
     if (store.status === 'idle') {
@@ -18,48 +25,43 @@ export const ShiftListScreen: React.FC = observer(() => {
     };
   }, [store]);
 
+  const isRefreshing = store.status === 'loading' && store.hasShifts;
+
+  const handleRefresh = useCallback(() => {
+    store.loadShifts();
+  }, [store]);
+
+  const handleSelectShift = useCallback(
+    (shiftId: string) => {
+      store.selectShift(shiftId);
+      navigation.navigate('ShiftDetails', {shiftId});
+    },
+    [navigation, store],
+  );
+
   return (
-    <Screen>
+    <Screen contentStyle={styles.screenContent}>
       <Text variant="title" style={styles.title}>
         Доступные смены
       </Text>
-      {store.status === 'loading' && (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator color={theme.colors.primary} size="large" />
-          <Text color="textSecondary" style={styles.helperText}>
-            Определяем ваше местоположение и ищем смены поблизости…
-          </Text>
-        </View>
-      )}
-      {store.status === 'error' && (
-        <View style={styles.centerContainer}>
-          <Text weight="bold" color="danger" style={styles.helperText}>
-            {store.error ?? 'Не удалось получить список смен.'}
-          </Text>
-        </View>
-      )}
-      {store.status === 'success' && !store.hasShifts && (
-        <View style={styles.centerContainer}>
-          <Text color="textSecondary" style={styles.helperText}>
-            Пока нет доступных смен рядом. Попробуйте обновить позже.
-          </Text>
-        </View>
-      )}
+      <ShiftList
+        shifts={store.shifts.slice()}
+        status={store.status}
+        error={store.error}
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        onRetry={handleRefresh}
+        onSelectShift={handleSelectShift}
+      />
     </Screen>
   );
 });
 
 const styles = StyleSheet.create({
+  screenContent: {
+    paddingTop: theme.spacing.md,
+  },
   title: {
     marginBottom: theme.spacing.lg,
-  },
-  centerContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  helperText: {
-    marginTop: theme.spacing.md,
-    textAlign: 'center',
   },
 });
