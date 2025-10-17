@@ -51,17 +51,6 @@ export const ShiftDetailsContent: React.FC<ShiftDetailsContentProps> = ({
 
   return (
     <View style={styles.container}>
-      <ShiftDetailsSection title="Время смены">
-        <Card style={styles.card}>
-          <Text weight="medium">
-            {shift.dateStartByCity}
-          </Text>
-          <Text color="textSecondary" style={styles.secondaryText}>
-            {shift.timeStartByCity} – {shift.timeEndByCity}
-          </Text>
-        </Card>
-      </ShiftDetailsSection>
-
       <ShiftDetailsSection title="Вознаграждение">
         <Card style={styles.card}>
           <Text variant="title" weight="bold" color="primary">
@@ -72,6 +61,17 @@ export const ShiftDetailsContent: React.FC<ShiftDetailsContentProps> = ({
               Дополнительный бонус {shift.bonusPriceWorker.toLocaleString('ru-RU')} ₽
             </Text>
           ) : null}
+        </Card>
+      </ShiftDetailsSection>
+
+      <ShiftDetailsSection title="Время смены">
+        <Card style={styles.card}>
+          <Text weight="medium">
+            {shift.dateStartByCity}
+          </Text>
+          <Text color="textSecondary" style={styles.secondaryText}>
+            {shift.timeStartByCity} – {shift.timeEndByCity}
+          </Text>
         </Card>
       </ShiftDetailsSection>
 
@@ -106,7 +106,7 @@ export const ShiftDetailsContent: React.FC<ShiftDetailsContentProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    gap: theme.spacing.xl,
+    gap: theme.spacing.xs,
   },
   card: {
     padding: theme.spacing.lg,
