@@ -5,12 +5,13 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Screen, Text} from '../components/ui';
 import {ShiftList} from '../components/shifts';
-import {useShiftStore} from '../stores';
+import {useShiftStore, useFilterStore} from '../stores';
 import {theme} from '../theme';
 import type {RootStackParamList} from '../navigation/AppNavigator';
 
 export const ShiftListScreen: React.FC = observer(() => {
   const store = useShiftStore();
+  const filterStore = useFilterStore();
   const navigation = useNavigation<
     NativeStackNavigationProp<RootStackParamList>
   >();
@@ -34,10 +35,10 @@ export const ShiftListScreen: React.FC = observer(() => {
 
   const handleToggleIncludeFilled = useCallback(
     (value: boolean) => {
-      store.setIncludeFilled(value);
+      filterStore.setIncludeFilled(value);
       setScrollToTopToken(token => token + 1);
     },
-    [store],
+    [filterStore],
   );
 
   const handleLoadMore = useCallback(() => {

@@ -15,6 +15,7 @@
     "@react-navigation/native-stack": "^7.3.28",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "react": "19.1.1",
     "react-native": "0.82.0",
     "react-native-geolocation-service": "^5.3.1",
