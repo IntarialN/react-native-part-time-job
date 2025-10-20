@@ -1,10 +1,18 @@
 import type {Coordinates, Shift, ShiftListResponse} from '../types';
+import {HttpClient} from './httpClient';
 
 const API_BASE_URL = 'https://mobile.handswork.pro/api';
-const SHIFTS_ENDPOINT = `${API_BASE_URL}/shifts/map-list-unauthorized`;
+const SHIFTS_ENDPOINT = '/shifts/map-list-unauthorized';
+
+const apiClient = new HttpClient({
+  baseUrl: API_BASE_URL,
+});
 
 type FetchShiftsParams = Coordinates & {
   signal?: AbortSignal;
+  page?: number;
+  pageSize?: number;
+  includeFilled?: boolean;
 };
 
 const parseShiftResponse = (payload: ShiftListResponse): Shift[] => {
@@ -30,28 +38,20 @@ export const fetchShifts = async ({
   latitude,
   longitude,
   signal,
+  page,
+  pageSize,
+  includeFilled,
 }: FetchShiftsParams): Promise<Shift[]> => {
-  const url = new URL(SHIFTS_ENDPOINT);
-  url.searchParams.set('latitude', String(latitude));
-  url.searchParams.set('longitude', String(longitude));
-
-  const response = await fetch(url.toString(), {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
+  const payload = await apiClient.request<ShiftListResponse>(SHIFTS_ENDPOINT, {
     signal,
+    query: {
+      latitude,
+      longitude,
+      page,
+      perPage: pageSize,
+      includeFilled,
+    },
   });
 
-  if (!response.ok) {
-    const errorBody = await response.text().catch(() => null);
-    throw new Error(
-      `Не удалось получить список смен (status ${response.status})${
-        errorBody ? `: ${errorBody}` : ''
-      }`,
-    );
-  }
-
-  const payload = (await response.json()) as ShiftListResponse;
   return parseShiftResponse(payload);
 };
