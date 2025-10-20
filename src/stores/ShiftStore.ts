@@ -178,6 +178,13 @@ export class ShiftStore {
         this.hasMore = shifts.length >= this.pageSize;
         this.isLoadingMore = false;
       });
+
+      await saveShiftsCache({
+        shifts: this.shifts,
+        location: this.root.locationStore.coordinates,
+        includeFilled: this.includeFilled,
+        timestamp: Date.now(),
+      });
     } catch (error) {
       runInAction(() => {
         this.isLoadingMore = false;
